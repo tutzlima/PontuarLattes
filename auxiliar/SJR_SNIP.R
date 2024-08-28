@@ -1,19 +1,35 @@
+ano <- 2019 # data que será utilizada para filtrar....
+
+
 # Siglas das universidades
-siglas <- read.delim("siglas_univ.txt", comment.char = "#", stringsAsFactors = FALSE)
+# "~/Documentos/Programação/R/PontuarLattes/auxiliar" |> setwd()
+siglas <- read.delim("PontuarLattes/auxiliar/siglas_univ.txt", comment.char = "#", stringsAsFactors = FALSE)
 
 # Gerar tabela de equivalência entre ISSN impresso e online de três fontes:
 # SJR, SNIP e site do Scielo
 
 # Lista de ISSNs impresso e eletrônico do Scielo
+# issn <- read.delim("scielo_issn.tsv", stringsAsFactors = FALSE)
 issn <- read.delim("scielo_issn.tsv", stringsAsFactors = FALSE)
 issn <- issn[!is.na(issn$issn2), c("issn1", "issn2")]
 
-# Carregar o SJR convertido por aspas_scimago.py
+# Atualização Alisson: o aspas scimago.py e read.delim2 não são mais necessários
+#
+# ~~Carregar o SJR convertido por aspas_scimago.py~~
 # porque a função read.csv2 não consegue ler arquivo em aspas são usadas
 # somente em alguns campos e em que o delimitador é usado entre aspas.
-sjr <- read.delim2("/tmp/scimagojrTAB", sep = "\t", fill = FALSE,
-                   stringsAsFactors = FALSE)
-sjr <- sjr[!is.na(sjr$SJR), ]
+# sjr <- read.delim2("/tmp/scimagojrTAB",
+#  sep = "\t", fill = FALSE,
+#  stringsAsFactors = FALSE
+# )
+
+# (Arthur) script alterado
+
+sjr_file <- list.files(path = "PontuarLattes/auxiliar", pattern = "scimagojr 2019.csv", full.names = TRUE) |>
+  head(1) |> # conferir se scimago é o esperado
+  read.csv2()
+
+sjr <- sjr_file[!is.na(sjr_file$SJR), ] # (Arthur) essa linha estava com o nome do arquivo errado
 names(sjr) <- sub("Issn", "isxn", names(sjr))
 names(sjr) <- sub("Title", "title.sjr", names(sjr))
 names(sjr) <- sub("Categories", "cat.sjr", names(sjr))
@@ -45,39 +61,51 @@ rm(s2)
 sjr <- sjr[!duplicated(sjr$isxn), ]
 
 ss2 <- list()
-for(i in 1:nrow(issn)){
-    if(issn$issn1[i] %in% sjr$isxn & !issn$issn2[i] %in% sjr$isxn){
-        ss2 <- rbind(ss2, sjr[sjr$isxn == issn$issn1[i], ])
-        ss2$isxn[nrow(ss2)] <- issn$issn2[i]
-    }
+for (i in 1:nrow(issn)) {
+  if (issn$issn1[i] %in% sjr$isxn & !issn$issn2[i] %in% sjr$isxn) {
+    ss2 <- rbind(ss2, sjr[sjr$isxn == issn$issn1[i], ])
+    ss2$isxn[nrow(ss2)] <- issn$issn2[i]
+  }
 }
-for(i in 1:nrow(issn)){
-    if(issn$issn2[i] %in% sjr$isxn & !issn$issn2[i] %in% sjr$isxn){
-        ss2 <- rbind(ss2, sjr[sjr$isxn == issn$issn2[i], ])
-        ss2$isxn[nrow(ss2)] <- issn$issn1[i]
-    }
+for (i in 1:nrow(issn)) {
+  if (issn$issn2[i] %in% sjr$isxn & !issn$issn2[i] %in% sjr$isxn) {
+    ss2 <- rbind(ss2, sjr[sjr$isxn == issn$issn2[i], ])
+    ss2$isxn[nrow(ss2)] <- issn$issn1[i]
+  }
 }
 sjr <- rbind(sjr, ss2)
 
 SJR_SNIP_version <- c("SJR" = "2019", "SNIP" = "Abril de 2020")
+# SJR_SNIP_version <- c("SJR" = ano, "SNIP" = "Março de 2024")
 
 # Dados do SNIP
 # Obter SNIP de http://www.journalindicators.com/methodology#sthash.FN5cRgxb.dpuf%20
-if(!file.exists("CWTS Journal Indicators April 2020.xlsx")){
-    cat("Baixando o CWTS Journal Indicators\n")
-    download.file("http://www.journalindicators.com/Content/CWTS%20Journal%20Indicators%20April%202020.xlsx",
-                  destfile = "CWTS Journal Indicators Abril 2020.xlsx")
+if (!file.exists("CWTS Journal Indicators April 2020.xlsx")) {
+  cat("Baixando o CWTS Journal Indicators\n")
+  download.file("http://www.journalindicators.com/Content/CWTS%20Journal%20Indicators%20April%202020.xlsx",
+    destfile = "PontuarLattes/auxiliar/CWTS Journal Indicators April 2020.xlsx"
+  )
 }
 
-library("openxlsx")
-snip.cat <- read.xlsx("CWTS Journal Indicators April 2020.xlsx", 2)
+# library("openxlsx")
+# cwts <- "CWTS Journal Indicators April 2020.xlsx"
+# "CWTS Journal Indicators April 2024.xlsx"
+cwts <- list.files(path = "PontuarLattes/auxiliar/", pattern = "CWTS", full.names = T)
+# CONFERIR qual dos elementos do vetor irá utilizar
+cwts <- cwts[2]
+snip.cat <- openxlsx::read.xlsx(cwts, 2)
 names(snip.cat) <- c("id", "Categoria")
 snip.cat$Peso <- 1.0
 
-snip1 <- read.xlsx("CWTS Journal Indicators April 2020.xlsx", 1)
-snip1 <- snip1[snip1$Year == 2019,
-               c("Source.title", "Source.type", "Print.ISSN",
-                 "Electronic.ISSN", "ASJC.field.IDs", "Year", "SNIP")]
+snip1 <- openxlsx::read.xlsx(cwts, 1)
+snip1 <- snip1[
+  # snip1$Year == 2019,
+  snip1$Year == ano,
+  c(
+    "Source.title", "Source.type", "Print.ISSN",
+    "Electronic.ISSN", "ASJC.field.IDs", "Year", "SNIP"
+  )
+]
 snip1$Print.ISSN <- sub("-", "", snip1$Print.ISSN)
 snip1$Electronic.ISSN <- sub("-", "", snip1$Electronic.ISSN)
 snip1$Electronic.ISSN <- sub("-", "", snip1$Electronic.ISSN)
@@ -104,21 +132,21 @@ snip <- snip[snip$isxn != "", c("Source.title", "isxn", "SNIP", "ASJC.field.IDs"
 snip <- snip[!duplicated(snip$isxn), ]
 
 ss2 <- list()
-for(i in 1:nrow(issn)){
-    if(issn$issn1[i] %in% snip$isxn & !issn$issn2[i] %in% snip$isxn){
-        ss2 <- rbind(ss2, snip[snip$isxn == issn$issn1[i], ])
-        ss2$isxn[nrow(ss2)] <- issn$issn2[i]
-    }
+for (i in 1:nrow(issn)) {
+  if (issn$issn1[i] %in% snip$isxn & !issn$issn2[i] %in% snip$isxn) {
+    ss2 <- rbind(ss2, snip[snip$isxn == issn$issn1[i], ])
+    ss2$isxn[nrow(ss2)] <- issn$issn2[i]
+  }
 }
-for(i in 1:nrow(issn)){
-    if(issn$issn2[i] %in% snip$isxn & !issn$issn2[i] %in% snip$isxn){
-        ss2 <- rbind(ss2, snip[snip$isxn == issn$issn2[i], ])
-        ss2$isxn[nrow(ss2)] <- issn$issn1[i]
-    }
+for (i in 1:nrow(issn)) {
+  if (issn$issn2[i] %in% snip$isxn & !issn$issn2[i] %in% snip$isxn) {
+    ss2 <- rbind(ss2, snip[snip$isxn == issn$issn2[i], ])
+    ss2$isxn[nrow(ss2)] <- issn$issn1[i]
+  }
 }
 
 # Juntar SJR e SNIP no mesmo data.frame
-sjrsnip <- merge(sjr, snip, all = TRUE)
+sjrsnip <- merge(sjr, snip, all = TRUE) # (Arthur) espere um pouco nesse momento
 
 sjrsnip <- sjrsnip[!is.na(sjrsnip$isxn) & nchar(sjrsnip$isxn) > 1, ]
 
@@ -127,11 +155,13 @@ sjr.cat <- lapply(sjr.cat, function(x) strsplit(x, ";")[[1]])
 sjr.cat <- do.call("c", sjr.cat)
 sjr.cat <- sub("^ ", "", sjr.cat)
 sjr.cat <- table(sjr.cat)
-sjr.cat <- data.frame("Categoria" = names(sjr.cat),
-                      "Peso" = rep(1.0, length(sjr.cat)))
+sjr.cat <- data.frame(
+  "Categoria" = names(sjr.cat),
+  "Peso" = rep(1.0, length(sjr.cat))
+)
 
-if(sum(duplicated(sjrsnip$isxn))){
-    cat("ISSN duplicado no SJR/SNIP\n", file = stderr())
+if (sum(duplicated(sjrsnip$isxn))) {
+  cat("ISSN duplicado no SJR/SNIP\n", file = stderr())
 }
 
-save(sjrsnip, sjr.cat, snip.cat, SJR_SNIP_version, issn, siglas, file = "SJR_SNIP.RData")
+save(sjrsnip, sjr.cat, snip.cat, SJR_SNIP_version, issn, siglas, file = "PontuarLattes/auxiliar/SJR_SNIP.RData")
