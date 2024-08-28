@@ -1,14 +1,15 @@
-source("str_title_case.R")
+source("PontuarLattes/qualis/str_title_case.R")
 
 # Ler arquivo baixado da Plataforma Sucupira:
-q10 <- read.delim("classificacoes_publicadas_todas_as_areas_avaliacao.xls",
+
+q10 <- read.delim("PontuarLattes/qualis/classificacoes_publicadas_todas_as_areas_avaliacao.xls",
                   fileEncoding = "Latin1", stringsAsFactors = FALSE)
 
 q10$Área.de.Avaliação <- str_title_case(q10$Área.de.Avaliação)
 q10$Título <- str_title_case(q10$Título)
 names(q10) <- c("isxn", "titulo10", "area", "q10")
 
-load("../auxiliar/SJR_SNIP.RData")
+load("PontuarLattes/auxiliar/SJR_SNIP.RData")
 issn <- issn[issn$issn1 != "", ]
 issn <- issn[issn$issn2 != "", ]
 issn <- issn[issn$issn1 != issn$issn2, ]
@@ -68,4 +69,4 @@ if(sum(duplicated(q10$isxn))){
     dup[order(dup$isxn), ]
 }
 
-save(q10, file = "qualis_2010_2012.RData")
+save(q10, file = "PontuarLattes/auxiliar/qualis_2010_2012.RData")
