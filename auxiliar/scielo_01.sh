@@ -3,8 +3,11 @@
 mkdir C:\tmp\scielo
 
 cd /tmp/scielo
+
 :: tempo de espera entre os downloads, para evitar bloqueio por DNS
+
 set tempo_espera=2
+
 wget "http://www.scielo.br/scielo.php?script=sci_serial&pid=0001-3765&lng=en&nrm=iso" -O "Anais da Academia Brasileira de Ciências" -w %tempo_espera%
 wget "http://www.scielo.br/scielo.php?script=sci_serial&pid=0004-2749&lng=en&nrm=iso" -O "Arquivos Brasileiros de Oftalmologia" -w %tempo_espera%
 wget "http://www.scielo.br/scielo.php?script=sci_serial&pid=0004-2803&lng=en&nrm=iso" -O "Arquivos de Gastroenterologia" -w %tempo_espera%

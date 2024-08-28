@@ -1,9 +1,9 @@
-source("str_title_case.R")
+source("PontuarLattes/qualis/str_title_case.R")
 library(readxl)
 
-# As planilhas baixadas da Plataforma Qualis com as classificações de cada
-# área devem estar na pasta "201720"
-setwd("201720")
+# As planilhas baixadas da Plataforma Qualis com as classificações de cada área devem estar na pasta "201720"
+
+setwd("PontuarLattes/201720")
 
 a <- dir(".", "*.xls")
 l <- lapply(a, read_excel)

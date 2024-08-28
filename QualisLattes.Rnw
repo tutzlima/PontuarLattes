@@ -3,13 +3,13 @@
 \usepackage{color}
 \usepackage{geometry}
 \geometry{a4paper,landscape,left=2cm,right=2cm,top=2cm,bottom=2cm}
-
 \newcounter{tabela}
 
 <<loadlibraries, echo=FALSE, cache=FALSE, message=FALSE, warning=FALSE, error=FALSE>>=
 if (grepl("\\.UTF-8", Sys.getenv("LANGUAGE")))
     Sys.setenv(LANGUAGE = "pt_BR.UTF-8")
 options(OutDec = ",")
+@
 
 library("ineq")
 library("cld2")
@@ -160,15 +160,18 @@ colnames(tab) <- colnames(nSnip)
 rownames(nSnip) <- NULL
 nSnip <- rbind(nSnip, tab, stringsAsFactors = FALSE)
 
-# Fonte a ser usada no PDF:
 if (!exists("MainFont")) {
-    if (grepl("linux", version$os)) {
-        MainFont <- "Liberation Serif"
-    } else {
+    if (grepl("win", version$os)) {
         MainFont <- "Times New Roman"
+    } else {
+        MainFont <- "Liberation Serif"
     }
 }
 @
+
+if (!exists("MainFont")) {
+    stop("A variável 'MainFont' não foi definida corretamente.")
+}
 
 \usepackage{fontspec}
 \setmainfont{\Sexpr{MainFont}}
@@ -220,6 +223,7 @@ if (!exists("MainFont")) {
 \date{\today}
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 \maketitle
 

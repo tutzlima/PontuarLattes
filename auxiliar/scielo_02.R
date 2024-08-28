@@ -1,11 +1,19 @@
-# comentário Alisson: Script que capta os issns das revistas e devolve um tibble
-# o script foi reescrito, já que o anterior não funcionava
+# Comentários Alisson # ----
+
+# Script que capta os issns das revistas e devolve um tibble
+
+# O script foi reescrito, já que o anterior não funcionava
+
+
+#----
 
 # aqui <- getwd()
 # setwd("/tmp/scielo")
 
 diretorio <- "/tmp/scielo"
+
 # arquivos <- dir()
+
 arquivos <- list.files(diretorio, full.names = T)
 
 # ISSN <- function(revista) {
@@ -52,11 +60,12 @@ extrai_issn <- function(revista) {
 scielo <- do.call(rbind, lapply(arquivos, extrai_issn))
 
 # removendo hífens dos ISSNs
+
 scielo$issn1 <- sub("-", "", scielo$issn1)
 scielo$issn2 <- sub("-", "", scielo$issn2)
 
 # Salvando o resultado em um arquivo TSV
-write.table(scielo, "scielo_issn.tsv",
+
+write.table(scielo, "auxiliar/scielo_issn.tsv",
             sep = "\t", quote = FALSE, row.names = FALSE
 )
-
