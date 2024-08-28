@@ -1,19 +1,21 @@
-source("PontuarLattes/qualis/str_title_case.R")
+source("qualis/str_title_case.R")
 
 # Ler arquivo baixado da Plataforma Sucupira:
-q13 <- read.delim("PontuarLattes/qualis/classificacoes_publicadas_todas_as_areas_avaliacao1522078273541.xls",
+
+q13 <- read.delim("qualis/classificacoes_publicadas_todas_as_areas_avaliacao1522078273541.xls",
                   fileEncoding = "Latin1", stringsAsFactors = FALSE)
 
 q13$Área.de.Avaliação <- str_title_case(q13$Área.de.Avaliação)
 q13$Título <- str_title_case(q13$Título)
 names(q13) <- c("isxn", "titulo13", "area", "q13")
 
-load("PontuarLattes/auxiliar/SJR_SNIP.RData")
+load("auxiliar/SJR_SNIP.RData")
 issn <- issn[issn$issn1 != "", ]
 issn <- issn[issn$issn2 != "", ]
 issn <- issn[issn$issn1 != issn$issn2, ]
 
 # Correções
+
 q13$isxn <- sub("-", "", q13$isxn)
 q13$q13 <- sub(" *$", "", q13$q13)
 q13$titulo13 <- sub(" *$", "", q13$titulo13)
@@ -23,9 +25,11 @@ limpar_area <- function(x){
     x$area <- NULL
     x
 }
+
 q13 <- lapply(q13, limpar_area)
 
 # Adicionar ISSNs alternativos
+
 adicionar_issn <- function(x){
     tem1 <- issn$issn1 %in% x$isxn
     tem2 <- issn$issn2 %in% x$isxn
@@ -58,4 +62,4 @@ if(sum(duplicated(q13$isxn))){
     dup[order(dup$isxn), ]
 }
 
-save(q13, file = "PontuarLattes/auxiliar/qualis_2013_2016.RData")
+save(q13, file = "qualis/qualis_2013_2016.RData")

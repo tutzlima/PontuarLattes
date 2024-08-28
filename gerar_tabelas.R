@@ -1,9 +1,13 @@
 library("XML")
+# Carregar os dados necessários
+load("qualis/qualis_2010_2012.RData")
+load("qualis/qualis_2013_2016.RData")
+load("base_SJR_SNIP.RData")
 
-# Carregar dados do SJR e SNIP
-load("bases_dados.RData")
+# Verificar se o NomeComite está presente nas listas q10, q13 e q17
 
 # Valores a serem substituídos pelos dados de info.R
+
 NomeProg <- "Ciência Política e Relações Internacionais"
 TituloDoc <- "Produção dos Professores do PPG em XXXX da Universidade YYYY"
 NomeComite <- "Ciência Política e Relações Internacionais"
@@ -22,10 +26,11 @@ PesoLivros <- 0.35
 Inicio <- 2017
 Fim <- 2020
 
-# A leitura do info.R fica aqui para possibilitar a alteração dos pesos das
-# diferentes categorias do SJR e SNIP.
-if (file.exists("info.R"))
+# A leitura do info.R fica aqui para possibilitar a alteração dos pesos das diferentes categorias do SJR e SNIP.
+
+if (file.exists("info.R")){
     source("info.R")
+}
 
 if (NomeComite %in% names(q13)) {
     q10 <- q10[[NomeComite]]
@@ -35,13 +40,30 @@ if (NomeComite %in% names(q13)) {
     cat(paste0("Variável 'NomeComite' inválida: '", NomeComite,
                "'.\nNomes válidos:\n"), file = stderr())
     cat(paste0('  "', paste0(names(q13), collapse = '"\n  "'), '"\n'))
-    if (!interactive())
+    if (!interactive()){
         quit(save = "no", status = 1)
+    }
 }
 
-qualis <- merge(q10, q13, all = TRUE)
-qualis <- merge(qualis, q17, all = TRUE)
-qualis <- merge(qualis, sjrsnip, all = TRUE)
+if (NomeComite %in% names(q13)) {
+  q10 <- q10[[NomeComite]]
+  q13 <- q13[[NomeComite]]
+  q17 <- q17[[NomeComite]]
+} else {
+  writeLines(names(q13), "nomes_validos.txt")
+  cat(paste0("Variável 'NomeComite' inválida: '", NomeComite,
+             "'.\nNomes válidos:\n"), file = stderr())
+  if (!interactive()){
+    quit(save = "no", status = 1)
+  }
+}
+
+# Realizar os merges passo a passo
+qualis <- merge(q10, q13, by = "isxn", all = TRUE)
+#qualis <- merge(qualis, q17, by = "isxn", all = TRUE)
+qualis <- merge(qualis, sjrsnip, by = "isxn", all = TRUE)
+
+# Agora a variável 'qualis' contém as informações combinadas de q10, q13, q17 e sjrsnip
 
 if (sum(duplicated(qualis$isxn))) {
     cat("ISSN duplicado após merge com SJR/SNIP.\n", file = stderr())
@@ -51,6 +73,7 @@ if (sum(duplicated(qualis$isxn))) {
 
 # http://stackoverflow.com/questions/5060076/convert-html-character-entity-encoding-in-r
 # Convenience function to convert html codes
+
 html2tex <- function(x) {
     if (is.na(x) || x == "")
         return(x)
@@ -65,6 +88,7 @@ html2tex <- function(x) {
 }
 
 # Substituir nomes de institições por suas siglas
+
 NomeSigla <- function(x) {
     for (i in seq_len(nrow(siglas)))
         x <- sub(paste0("^", siglas$nome[i], "$"), siglas$sigla[i], x)
@@ -72,6 +96,7 @@ NomeSigla <- function(x) {
 }
 
 # Abreviar nomes cujas siglas não foram encontradas
+
 AbreviarInstituicao <- function(x) {
     x <- sub("Universidade", "U.", x, ignore.case = TRUE)
     x <- sub("Federal", "F.", x, ignore.case = TRUE)
@@ -320,6 +345,7 @@ obter.producao <- function(arquivo) {
     rownames(b) <- NULL
 
     # b = NULL se o autor do currículo nunca tiver publicado nada:
+    
     if (!is.null(b))
         colnames(b) <- c("prof", "ano", "tipo", "producao", "livro.ou.periodico",
                          "vol", "num", "pini", "pfim", "isxn", "doi",
@@ -336,18 +362,22 @@ if (length(lsxml) == 0) {
 xx <- lapply(lsxml, obter.producao)
 xx <- do.call("rbind", xx)
 p <- as.data.frame(xx, stringsAsFactors = FALSE)
-p <- p[!is.na(p$ano) & p$ano != "", ] # Garantir que o ano esteja especificado
-rm(xx, obter.producao)
+p <- p[!is.na(p$ano) & p$ano != "", ] # Garantir que o ano esteja especificado (?????)
+
+#rm(xx, obter.producao)
 
 datacv <- as.data.frame(datacv)
+
 pq <- pq[pq$inicio <= Sys.Date() & pq$termino >= Sys.Date(), ]
 
 # Somente uns 4 casos de nomes realmente repetidos:
 # pqdup <- pq[duplicated(pq$nome) | duplicated(pq$nome, fromLast = TRUE), ]
 # pqdup <- pqdup[order(pqdup$nome), ]
 # pqdup
+
 pq <- pq[!duplicated(pq$nome), ]
 colnames(pq) <- sub("nome", "Professor", colnames(pq))
+
 datacv <- merge(datacv, pq, all.x = TRUE)
 
 if (exists("PeriodoProf")) {
@@ -397,6 +427,7 @@ if (nrow(p) == 0) {
 }
 
 # Adicionar Qualis por título
+
 if (QualisPorTitulo) {
     q2 <- qualis
     q2$titulo10 <- tolower(q2$titulo10)
@@ -461,11 +492,13 @@ if (QualisPorTitulo) {
 }
 
 # Organização de dossiês em periódicos:
+
 p$qualis[is.na(p$qualis) & p$tipo == "Artigo"] <- "SQ"
 p$qualis[is.na(p$qualis) & p$tipo != "Artigo"] <- p$tipo[is.na(p$qualis) & p$tipo != "Artigo"]
 
 i <- p$tipo != "Artigo" & p$tipo != "NãoArt" &
     p$qualis %in% c("A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4", "B5", "C", "SQ")
+
 if (sum(i) > 0)
     p$qualis[i] <- "OD"
 
@@ -534,6 +567,7 @@ pcompleto <- p
 p <- p[!is.na(p$ano) & p$ano >= Inicio & p$ano <= Fim, ]
 
 # Eliminar professores não credenciados em anos específicos
+
 if (exists("PeriodoProf")) {
     idx <- rep(TRUE, nrow(p))
     for (i in seq_len(nrow(PeriodoProf))) {
@@ -546,6 +580,7 @@ if (exists("PeriodoProf")) {
 p$ano <- factor(as.character(p$ano))
 
 # Detectar coautorias
+
 p$chave <- tolower(paste(p$isxn, p$ano, p$tipo, p$vol, p$num, p$pini))
 coaut <- table(p$chave)
 coaut <- data.frame(chave = names(coaut), ncoaut = as.numeric(coaut), stringsAsFactors = FALSE)
@@ -554,6 +589,7 @@ rm(coaut)
 p$ncoaut[p$isxn == ""] <- 1 # Ignorar casos em que não há ISSN/ISBN
 
 # Detectar coautorias
+
 NAutores <- function(s) {
     l <- strsplit(s, "\\+")[[1]]
     n <- sum(l %in% datacv$Professor)
@@ -576,12 +612,14 @@ if (sum(is.na(p$pontos)) > 0) {
 }
 
 # Data de atualização do currículo
+
 quando <- datacv
 quando$DataCV <- as.Date(quando$DataCV, format = "%d/%m/%Y")
 quando <- quando[order(quando$DataCV), ]
 quando$Dias <- as.integer(as.Date(Sys.time()) - quando$DataCV)
 
 # Informações sobre doutorado
+
 if (length(doutorado) > 1) {
     doutor <- do.call("rbind", doutorado)
     doutor[, 2] <- NomeSigla(sapply(doutor[, 2], html2tex))
@@ -605,7 +643,8 @@ TabProd <- function(d, v) {
     tab <- tapply(pontos, list(d$prof, d$ano), sum, na.rm = TRUE)
 
     # Adicionar professores que não produziram no período
-    falta <- !(quando[, "Professor"] %in% rownames(tab))
+
+falta <- !(quando[, "Professor"] %in% rownames(tab))
     if (sum(falta) > 0) {
         falta <- quando[falta, "Professor"]
         ftab <- matrix(nrow = length(falta), ncol = ncol(tab))
@@ -648,7 +687,9 @@ nSJR <- cbind("Não" = tapply(p$SJR[p$tipo == "Artigo"], p$prof[p$tipo == "Artig
                               function(x) sum(is.na(x))),
               "Sim" = tapply(p$SJR[p$tipo == "Artigo"], p$prof[p$tipo == "Artigo"],
                              function(x) sum(!is.na(x))))
+
 nSJR <- as.data.frame(nSJR)
+
 nSJR <- cbind("Professor" = rownames(nSJR), nSJR, stringsAsFactors = FALSE)
 nSJR$Não[is.na(nSJR$Não)] <- 0
 nSJR$Sim[is.na(nSJR$Sim)] <- 0
@@ -683,6 +724,7 @@ tab <- sort(tab, decreasing = TRUE)
 pontuacaoArt4 <- data.frame(Professor = names(tab), Pontos = unname(tab))
 
 # Lista de Pós-doutorados realizados
+
 posdoc <- do.call("rbind", posdoc)
 if (is.null(posdoc)) {
     posdoc <- matrix(NA, ncol = 4)
@@ -964,9 +1006,11 @@ pond$Média <- PesoArtigos * pond$Artigos + PesoLivros * pond$Livros
 pond <- pond[order(pond$Média, decreasing = TRUE), ]
 
 # Média móvel
+
 # Calcular média móvel geral
 
 # É preciso especificar o ano porque há casos de não registro do ano
+
 pm <- pcompleto[, c("tipo", "pontos", "ano")]
 
 pm$pontos[pm$tipo == "Artigo"] <- PesoArtigos * pm$pontos[pm$tipo == "Artigo"]
@@ -974,11 +1018,14 @@ pm$pontos[pm$tipo != "Artigo"] <- PesoLivros * pm$pontos[pm$tipo != "Artigo"]
 media <- tapply(pm$pontos, pm$ano, function(x) sum(x) / nrow(quando))
 mediamovel <- rep(0, max(as.numeric(names(media))) - min(as.numeric(names(media))) + 1)
 names(mediamovel) <- as.character(as.numeric(min(names(media))):as.numeric(max(names(media))))
+
 for (n in names(media))
     mediamovel[[n]] <- media[[n]]
 
 mmmsg <- character()
+
 # Calcular média móvel de cada professor
+
 MediaMovel <- function(x) {
     if (nrow(x) < 3) {
         msg <- paste0(x$prof[1], ": não é possível calcular a média móvel porque ")
@@ -1025,6 +1072,7 @@ mm <- lapply(pcl, MediaMovel)
 mm <- mm[!is.na(mm)]
 
 # Produção segundo classificação Qualis
+
 p$um <- 1
 producao <- tapply(p$um, list(p$prof, p$qualis), sum)
 if (sum(grepl("Nada", colnames(producao)))) {
@@ -1041,6 +1089,7 @@ p$producao <- sapply(p$producao, html2tex)
 p$livro.ou.periodico <- sapply(p$livro.ou.periodico, html2tex)
 
 # Tabela com coautores
+
 coaut <- p[p$ncoaut.max > 1,
            c("prof", "producao", "ano", "livro.ou.periodico", "isxn", "ncoaut.nm", "ncoaut.id", "ncoaut")]
 coaut <- coaut[order(coaut$producao, coaut$prof), ]
@@ -1079,6 +1128,7 @@ if (sum(idx) > 0) {
 b$ncoaut.max <- NULL
 
 # ISBN check digit
+
 checkISBN <- function(x) {
     x <- strsplit(x, "")[[1]]
     if (length(x) != 13)
@@ -1126,8 +1176,8 @@ proddet <- b
 proddet$SNIP <- round(proddet$SNIP, 3)
 rm(b)
 
-# Títulos de periódicos registrados nos currículos com alguma diferença dos
-# títulos na planilha Qualis
+# Títulos de periódicos registrados nos currículos com alguma diferença dos títulos na planilha Qualis
+
 ttldif <- p[p$tipo == "Artigo", ]
 ttldif$titulo10 <- sapply(ttldif$titulo10, html2tex)
 ttldif$titulo13 <- sapply(ttldif$titulo13, html2tex)
@@ -1173,6 +1223,7 @@ if (nrow(ttldif) > 0) {
 }
 
 # Lista de periódicos sem qualis
+
 semqualis <- p[p$qualis == "SQ", c("isxn", "livro.ou.periodico")]
 semqualis <- semqualis[!duplicated(semqualis), ]
 semqualis <- semqualis[order(semqualis$livro.ou.periodico), ]
@@ -1182,6 +1233,7 @@ colnames(semqualis) <- c("ISSN", "Título do periódico")
 p$Country <- factor(p$Country)
 
 # Salvar objetos do tipo data.frame para uso externo ao PontuarLattes
+
 save(datacv, quando, doutor, nSJR, nSnip, oriconcTab, oriandTab, posdoc,
      premios, pontuacaoLvr, pontuacaoArt, pontuacaoSJR, pontuacaoSNIP,
      file = "tabs.RData")

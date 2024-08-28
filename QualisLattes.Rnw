@@ -5,17 +5,44 @@
 \geometry{a4paper,landscape,left=2cm,right=2cm,top=2cm,bottom=2cm}
 \newcounter{tabela}
 
-<<loadlibraries, echo=FALSE, cache=FALSE, message=FALSE, warning=FALSE, error=FALSE>>=
+<<setup, include=FALSE>>=
+library(knitr)
+opts_chunk$set(
+  echo = FALSE,
+  cache = FALSE,
+  fig.width = 6,
+  fig.height = 3,
+  fig.align = "center",
+  results = "asis",
+  warning = FALSE,
+  error = TRUE,  # Modificado para TRUE para continuar mesmo com erros
+  message = FALSE
+)
+@
+
+
+<<loadlibraries, results='tex', echo=FALSE, cache=FALSE, message=FALSE, warning=FALSE, error=FALSE>>=
 if (grepl("\\.UTF-8", Sys.getenv("LANGUAGE")))
     Sys.setenv(LANGUAGE = "pt_BR.UTF-8")
 options(OutDec = ",")
 @
 
+<<defineMainFont, echo=FALSE, results="asis">>=
+MainFont <- "Times New Roman"
+@
+
+\begin{document}.
+
+\usepackage{fontspec}
+\setmainfont{\Sexpr{MainFont}}
+\usepackage{float}
+\usepackage{longtable}
+
+<<loadadditionalpackages, echo=FALSE, results="hide">>=
 library("ineq")
 library("cld2")
 library("knitr")
-
-opts_chunk$set(echo = FALSE, cache = FALSE,  fig.width = 6, fig.height = 3, fig.align = "center", results = "asis")
+@
 
 SPRINTF <- function(fmt, x) {
     sub("\\.", ",", sprintf(fmt, x))
@@ -167,7 +194,6 @@ if (!exists("MainFont")) {
         MainFont <- "Liberation Serif"
     }
 }
-@
 
 if (!exists("MainFont")) {
     stop("A variável 'MainFont' não foi definida corretamente.")
@@ -221,9 +247,6 @@ if (!exists("MainFont")) {
 \title{\Sexpr{paste0(TituloDoc, " (", Inicio, "-", Fim, ")")}}
 \author{\Sexpr{Autor}}
 \date{\today}
-
-\begin{document}
-\SweaveOpts{concordance=TRUE}
 
 \maketitle
 

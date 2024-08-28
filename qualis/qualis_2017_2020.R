@@ -1,4 +1,4 @@
-source("PontuarLattes/qualis/str_title_case.R")
+source("qualis/str_title_case.R")
 library(readxl)
 
 # As planilhas baixadas da Plataforma Qualis com as classificações de cada área devem estar na pasta "201720"

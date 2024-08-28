@@ -192,4 +192,4 @@ if (sum(duplicated(sjrsnip$isxn))) {
   cat("ISSN duplicado no SJR/SNIP\n", file = stderr())
 }
 
-save(sjrsnip, sjr.cat, snip.cat, SJR_SNIP_version, issn, siglas, file = "auxiliar/SJR_SNIP.RData")
+save(sjrsnip, sjr.cat, snip.cat, SJR_SNIP_version, issn, siglas, file = "base_SJR_SNIP.RData") # VERIFICA SE É ESSE MESMO

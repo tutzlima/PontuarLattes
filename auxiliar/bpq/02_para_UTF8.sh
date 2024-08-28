@@ -1,4 +1,3 @@
-
 mv "Ciênciada Computação.html" "Ciência da Computação.html"
 mv "Engenharia de Materiais e Metalurgica.html" "Engenharia de Materiais e Metalúrgica.html"
 mv "Fontes Renováveisde Energia.html" "Fontes Renováveis de Energia.html"
