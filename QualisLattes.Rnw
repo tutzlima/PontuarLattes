@@ -5,6 +5,20 @@
 \geometry{a4paper,landscape,left=2cm,right=2cm,top=2cm,bottom=2cm}
 \newcounter{tabela}
 
+% Adicione a linha abaixo antes do hyperref se necessário
+\usepackage{url}
+
+% Adicionando o pacote hyperref
+\usepackage{hyperref}
+\hypersetup{
+  unicode=true,
+  pdfsubject={},
+  pdfkeywords={},
+  plainpages=false,
+  bookmarks=false,
+  pdfborder={0 0 0}
+}
+
 <<setup, include=FALSE>>=
 library(knitr)
 opts_chunk$set(
@@ -20,7 +34,6 @@ opts_chunk$set(
 )
 @
 
-
 <<loadlibraries, results='tex', echo=FALSE, cache=FALSE, message=FALSE, warning=FALSE, error=FALSE>>=
 if (grepl("\\.UTF-8", Sys.getenv("LANGUAGE")))
     Sys.setenv(LANGUAGE = "pt_BR.UTF-8")
@@ -31,19 +44,19 @@ options(OutDec = ",")
 MainFont <- "Times New Roman"
 @
 
-\begin{document}.
-
 \usepackage{fontspec}
 \setmainfont{\Sexpr{MainFont}}
 \usepackage{float}
 \usepackage{longtable}
 
+\begin{document}
+
 <<loadadditionalpackages, echo=FALSE, results="hide">>=
 library("ineq")
 library("cld2")
-library("knitr")
 @
 
+<<functions, echo=FALSE>>=
 SPRINTF <- function(fmt, x) {
     sub("\\.", ",", sprintf(fmt, x))
 }
@@ -104,7 +117,7 @@ Tabela <- function(tab, cap = "Sem título", alin, lbl, hline) {
 
 source("gerar_tabelas.R")
 
-# Formatar data.frames para exibição no relatório QualisLattes.pdf
+# Funções para formatar data.frames para exibição no relatório QualisLattes.pdf
 MMG <- function(tab, r, g = FALSE) {
     if (ncol(tab) < 3)
         return(tab)
@@ -139,110 +152,7 @@ MMG <- function(tab, r, g = FALSE) {
     rownames(tab) <- NULL
     tab
 }
-
-pontuacaoLvr  <- MMG(pontuacaoLvr)
-pontuacaoArt  <- MMG(pontuacaoArt)
-pontuacaoSNIP <- MMG(pontuacaoSNIP, 3, g = TRUE)
-pontuacaoSJR  <- MMG(pontuacaoSJR, 3, g = TRUE)
-
-if (ncol(oriconcTab) > 2 && nrow(oriconcTab) > 3) {
-    oriconcTab <- cbind(oriconcTab, "Total" = apply(oriconcTab[, 2:ncol(oriconcTab)], 1, sum, na.rm = TRUE))
-    total <- as.character(apply(oriconcTab[, 2:ncol(oriconcTab)], 2, sum, na.rm = TRUE))
-    mediana <- as.character(round(apply(oriconcTab[, 2:ncol(oriconcTab)], 2, median, na.rm = TRUE), 1))
-    media  <- as.character(round(apply(oriconcTab[, 2:ncol(oriconcTab)], 2, mean, na.rm = TRUE), 1))
-    oriconcTab[, 2:ncol(oriconcTab)] <- format(oriconcTab[, 2:ncol(oriconcTab)])
-    tab <- as.data.frame(rbind(c("Total", total), c("Mediana", mediana), c("Média", media)), stringsAsFactors = FALSE)
-    colnames(tab) <- colnames(oriconcTab)
-    rownames(oriconcTab) <- NULL
-    oriconcTab <- rbind(oriconcTab, tab, stringsAsFactors = FALSE)
-}
-
-if (ncol(oriandTab) > 2 && nrow(oriandTab) > 3) {
-    oriandTab <- cbind(oriandTab, "Total" = apply(oriandTab[, 2:ncol(oriandTab)], 1, sum, na.rm = TRUE))
-    total <- as.character(apply(oriandTab[, 2:ncol(oriandTab)], 2, sum, na.rm = TRUE))
-    mediana <- as.character(round(apply(oriandTab[, 2:ncol(oriandTab)], 2, median, na.rm = TRUE), 1))
-    media  <- as.character(round(apply(oriandTab[, 2:ncol(oriandTab)], 2, mean, na.rm = TRUE), 1))
-    oriandTab[, 2:ncol(oriandTab)] <- format(oriandTab[, 2:ncol(oriandTab)])
-    tab <- as.data.frame(rbind(c("Total", total), c("Mediana", mediana), c("Média", media)), stringsAsFactors = FALSE)
-    colnames(tab) <- colnames(oriandTab)
-    rownames(oriandTab) <- NULL
-    oriandTab <- rbind(oriandTab, tab, stringsAsFactors = FALSE)
-}
-
-nSJR <- cbind(nSJR, "%" = round(100 * nSJR$Sim / (nSJR$Não + nSJR$Sim)))
-nSJR <- nSJR[order(nSJR[, 4], decreasing = TRUE), ]
-mediana <- SPRINTF("%0.1f", round(apply(nSJR[, 2:4], 2, median, na.rm = TRUE), 2))
-media <- SPRINTF("%0.1f", round(apply(nSJR[, 2:4], 2, mean, na.rm = TRUE), 2))
-tab <- as.data.frame(rbind(c("Mediana", mediana), c("Média", media)), stringsAsFactors = FALSE)
-colnames(tab) <- colnames(nSJR)
-rownames(nSJR) <- NULL
-nSJR <- rbind(nSJR, tab, stringsAsFactors = FALSE)
-
-nSnip <- cbind(nSnip, "%" = round(100 * nSnip$Sim / (nSnip$Não + nSnip$Sim)))
-nSnip <- nSnip[order(nSnip[, 4], decreasing = TRUE), ]
-mediana <- SPRINTF("%0.1f", round(apply(nSnip[, 2:4], 2, median, na.rm = TRUE), 2))
-media <- SPRINTF("%0.1f", round(apply(nSnip[, 2:4], 2, mean, na.rm = TRUE), 2))
-tab <- as.data.frame(rbind(c("Mediana", mediana), c("Média", media)), stringsAsFactors = FALSE)
-colnames(tab) <- colnames(nSnip)
-rownames(nSnip) <- NULL
-nSnip <- rbind(nSnip, tab, stringsAsFactors = FALSE)
-
-if (!exists("MainFont")) {
-    if (grepl("win", version$os)) {
-        MainFont <- "Times New Roman"
-    } else {
-        MainFont <- "Liberation Serif"
-    }
-}
-
-if (!exists("MainFont")) {
-    stop("A variável 'MainFont' não foi definida corretamente.")
-}
-
-\usepackage{fontspec}
-\setmainfont{\Sexpr{MainFont}}
-\usepackage{float}
-\usepackage{longtable}
-\usepackage{colortbl}
-\usepackage{booktabs}
-\usepackage{multirow}
-\usepackage{tabulary}
-\usepackage{indentfirst}
-\usepackage[unicode=true,
-  pdfsubject={},
-  pdfkeywords={},
-  plainpages=false,
-  bookmarks=false,
-  pdfborder={0 0 0},
-]{hyperref}
-
-\usepackage{array}
-\newcolumntype{E}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
-
-\makeatletter
-
-\def\ltabulary{%
-\def\endfirsthead{\\}%
-\def\endhead{\\}%
-\def\endfoot{\\}%
-\def\endlastfoot{\\}%
-\def\tabulary{%
-  \def\TY@final{%
-\def\endfirsthead{\LT@end@hd@ft\LT@firsthead}%
-\def\endhead{\LT@end@hd@ft\LT@head}%
-\def\endfoot{\LT@end@hd@ft\LT@foot}%
-\def\endlastfoot{\LT@end@hd@ft\LT@lastfoot}%
-\longtable}%
-  \let\endTY@final\endlongtable
-  \TY@tabular}%
-\dimen@\columnwidth
-\advance\dimen@-\LTleft
-\advance\dimen@-\LTright
-\tabulary\dimen@}
-
-\def\endltabulary{\endtabulary}
-
-\makeatother
+@
 
 \title{\Sexpr{paste0(TituloDoc, " (", Inicio, "-", Fim, ")")}}
 \author{\Sexpr{Autor}}
@@ -274,7 +184,7 @@ de melhorias, mas não têm nenhuma responsabilidade por eventais limitações o
 erros do software.} e disponibilizados em
 \url{https://github.com/jalvesaq/PontuarLattes}.
 
-O relatório ajuda a identificar problema no preenchimento do Lattes pelos
+O relatório ajuda a identificar problemas no preenchimento do Lattes pelos
 professores. Cada coordenador de curso deve consultar os documentos
 da sua área e ficar atento neste relatório às tabelas mais
 relevantes para uma boa avaliação do seu programa.
@@ -323,16 +233,6 @@ if (exists("PeriodoProf")) {
     cat("atividades de ensino e de extensão e nos gráficos com as médias móveis da pontuação da produção bibliográfica.\n\n", sep = "")
 }
 @
-
-
-Os scripts para elaboração deste relatório ainda estão em desenvolvimento e
-solicitamos que nos sejam comunicados erros encontrados nas tabelas e
-gráficos.
-
-Reconhecemos os esforços da CAPES nos últimos anos para a realização de
-avaliações objetivas dos programas de pós-graduação e esperamos com esta
-ferramenta contribuir para a transparência e publicidade dos processos de
-avaliação.
 
 \clearpage
 

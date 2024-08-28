@@ -1,7 +1,7 @@
-NomeProg <- "Teste"
+NomeProg <- "Ciência Política e Relações Internacionais"
 TituloDoc <- "Produção dos Professores do PPG em XXXX da Universidade YYYY"
-NomeComite <- "TESTE"
-Autor <- "Seu Nome"
+NomeComite <- "Sociologia"
+Autor <- "rogerinho"
 
 # Pontuação para Qualis do Triênio 2010-2012
 
@@ -39,3 +39,4 @@ PesoLivros <- 0.35
 
 Inicio <- 2017
 Fim <- 2020
+
