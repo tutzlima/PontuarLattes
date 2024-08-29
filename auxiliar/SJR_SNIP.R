@@ -1,6 +1,6 @@
 # Siglas das universidades #----
 
-ano <- 2023
+ano <- 2019
 
 siglas <- read.delim("auxiliar/siglas_univ.txt", comment.char = "#", stringsAsFactors = FALSE)
 
@@ -24,7 +24,7 @@ issn <- issn[!is.na(issn$issn2), c("issn1", "issn2")]
 
 # sjr <- read.delim2("/tmp/scimagojrTAB", sep = "\t", fill = FALSE, stringsAsFactors = FALSE)
 
-sjr_file <- list.files(path = "auxiliar", pattern = "scimagojr 2023.csv", full.names = TRUE)  %>%
+sjr_file <- list.files(path = "auxiliar", pattern = "scimagojr 2019.csv", full.names = TRUE)  %>%
   head(1) %>% # conferir se scimago é o esperado
   read.csv2()
 
@@ -84,7 +84,8 @@ for (i in 1:nrow(issn)) {
 
 sjr <- rbind(sjr, ss2) # aguarde um pouco!
 
-SJR_SNIP_version <- c("SJR" = "2024", "SNIP" = "Março de 2024") # o que exatamente isso significa? vou colocar os dados novos
+SJR_SNIP_version <- c("SJR" = "2019", "SNIP" = "Abril de 2020")
+
 
 #----
 
@@ -92,10 +93,10 @@ SJR_SNIP_version <- c("SJR" = "2024", "SNIP" = "Março de 2024") # o que exatame
 
 # Obter SNIP de http://www.journalindicators.com/methodology#sthash.FN5cRgxb.dpuf%20
 
-if (!file.exists("auxiliar/CWTS Journal Indicators March 2024.xlsx")) {
+if (!file.exists("CWTS Journal Indicators April 2020.xlsx")) {
   cat("Baixando o CWTS Journal Indicators\n")
-  download.file("https://www.journalindicators.com/Content/CWTS%20Journal%20Indicators%20March%202420.xlsx",
-    destfile = "auxiliar/CWTS Journal Indicators March 2024.xlsx"
+  download.file("https://www.journalindicators.com/Content/CWTS%20Journal%20Indicators%20April%202020.xlsx",
+                destfile = "auxiliar/CWTS Journal Indicators April 2020.xlsx"
   )
 }
 
@@ -107,7 +108,7 @@ cwts <- list.files(path = "auxiliar", pattern = "CWTS", full.names = T)
 
 # Conferir qual dos elementos do vetor irá utilizar!
 
-cwts <- cwts[3] # execute o "cwts" para verificar
+cwts <- cwts[1] # execute o "cwts" para verificar
 
 # lendo e renomeando as colunas
 
