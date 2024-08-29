@@ -33,12 +33,15 @@ O código deste repositório foi testado somente no Linux.
 3. no Rstudio, instale os pacotes `XML`, `openxlsx`, `cld2` e `ineq`:
 
  ```r
-install.packages(c("XML", "openxlsx", "cld2", "ineq"))
+install.packages(c("XML", "openxlsx", "cld2", "ineq", "tidyverse"))
  ```
 
-3. Instale o `texlive` ou outro sistema para LaTeX. Certifique-se de ser capaz
-     de compilar um documento usando o XeLaTeX.
+3. Instale o `texlive` ou outro sistema para LaTeX. Certifique-se de ser capaz de compilar um documento usando o XeLaTeX
 
+>Você pode escolher entre:
+>- Instalar o [Miktex](https://miktex.org/howto/download-miktex)
+>- Instalar o pacote `knitr` no `R`:
+>`install.packages("knitr")` e `library(knitr)`
 
 3. Na pasta `auxiliar`:
 
@@ -55,7 +58,7 @@ install.packages(c("XML", "openxlsx", "cld2", "ineq"))
 >- execute os seguintes scripts nessa sequência: 
 >
 >   - `scielo_01.sh`
->   - `auxiliar/scielo_02.R`
+>   - `scielo_02.R`
 >   - `SJR_SNIP.R`.
 
 10. Na pasta `qualis`:
