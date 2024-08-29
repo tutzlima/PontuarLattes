@@ -28,9 +28,11 @@ O código deste repositório foi testado somente no Linux.
 
 3. Crie sua branch, por exemplo: `git checkout -b seu_nome`
 
+3. Em `PontuarLattes` crie uma pasta chamada `curriculos`
+
 3. Certifique-se de criar um `Rproj` na pasta principal `PontuarLattes` para evitar problemas de caminhos
 
-3. no Rstudio, instale os pacotes `XML`, `openxlsx`, `cld2` e `ineq`:
+3. no Rstudio, instale os pacotes `XML`, `openxlsx`, `cld2` e `ineq` e `tidyverse`, por exemplo:
 
  ```r
 install.packages(c("XML", "openxlsx", "cld2", "ineq", "tidyverse"))
@@ -69,17 +71,32 @@ install.packages(c("XML", "openxlsx", "cld2", "ineq", "tidyverse"))
 >   - `qualis_2013_2016.R`
 >   - `qualis_2017_2020.R`
 
-- BPQ KKKKKKKKKKKKKKKKKKK
+10. Na pasta `auxiliar/bqp`:
 
-- SALVAR BASESKKKKKKKKKKKKK NAO É POSSIVEEEL
+>- Execute os scripts na ordem numérica
 
-- SCRIPT GERAR TABELAS ANTES DE QUALIS
+10. Na pasta `auxiliar`:
 
-- Salvar todas as variáveis no Environment em um único arquivo .RData
-save(list = ls(), file = "base_de_dados.RData")
+>- Execute o script `salvar_bases.R`
+>
+>- Execute o script `gerar_tabelas.R`
 
-11. Gere o PDF a partir do `QualisLattes.Rnw` (use XeLaTeX e não pdfLaTeX)
-      ou, se preferir, use o Makefile.
+11. Gere o PDF a partir do `QualisLattes.Rnw`:
+
+>- Vá em `Tools/Project Options/Sweave`:
+>
+>     - em `Weave Rnw files using:` selecione `knitr`
+>
+>     - em  `Typeset LaTeX into PDF using` selecione `XeLaTeX`
+>
+>- Opções para gerar o PDF:
+>
+>     - Clique em `Compile PDF`
+>
+>     - Rode `knitr::knit("QualisLattes.Rnw")` no `Console`
+>
+>     - Abra o arquivo no `TeX Live`
+>
 
 12. Quando quiser atualizar o relatório, basta repetir os passos 10 e 11.
 
