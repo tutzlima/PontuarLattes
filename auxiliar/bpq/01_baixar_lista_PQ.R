@@ -1,9 +1,3 @@
-# Criar diretório "auxiliar/tmp/scielo" #----
-
-dir.create("auxiliar/tmp/scielo/", recursive = TRUE, showWarnings = FALSE)
-
-#----
-
 # Criar lista #----
 
 lista <- rbind(c("V_TPO_RESULT=CURSO&V_COD_AREA_CONHEC=10400001&V_COD_CMT_ASSESSOR=FA", "Astronomia"),
@@ -96,14 +90,9 @@ lista <- rbind(c("V_TPO_RESULT=CURSO&V_COD_AREA_CONHEC=10400001&V_COD_CMT_ASSESS
 # Baixar arquivos #----
 
 for(i in 6:nrow(lista)){
-  for(i in 6:nrow(lista)){
-    e <- paste0("http://plsql1.cnpq.br/divulg/RESULTADO_PQ_102003.prc_comp_cmt_links?V_COD_DEMANDA=200310&", lista[i, 1]) # Cria a URL do arquivo
-    a <- lista[i, 2] # Define o nome do arquivo
-    f <- file.path("auxiliar/tmp/scielo/", paste0(a, ".html"))
-    # Ajusta o caminho para a pasta auxiliar/tmp/scielo/
-    download.file(e, f) # Baixa o arquivo
-    Sys.sleep(13) # Pausa para não sobrecarregar o servidor
-  }
+  e <- paste0("http://plsql1.cnpq.br/divulg/RESULTADO_PQ_102003.prc_comp_cmt_links?V_COD_DEMANDA=200310&", lista[i, 1])
+  a <- lista[i, 2]
+  f <- paste0(a, ".html")
+  download.file(e, f)
+  Sys.sleep(13)
 }
-
-# Verifique se a pasta "tmp" é onde deveria estar esses arquivos mesmo!!

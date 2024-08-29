@@ -1,4 +1,4 @@
-# Renomeando Arquivos
+# Renomeando Arquivos (verifique se precisa adaptar pro novo caminho dos arquivos)
 
 mv "Ciênciada Computação.html" "Ciência da Computação.html"
 mv "Engenharia de Materiais e Metalurgica.html" "Engenharia de Materiais e Metalúrgica.html"

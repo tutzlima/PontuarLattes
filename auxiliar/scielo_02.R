@@ -6,7 +6,7 @@ if (!requireNamespace("pacman", quietly = TRUE)) {
 
 # Estou aproveitando para chamar todas os pacotes que serão usados no processo pelo usuário na primeira vez
 
-pacman::p_load(XML, openxlsx, read.xl, cld2, ineq, tidyverse)
+pacman::p_load(XML, openxlsx, readxl, cld2, ineq, tidyverse)
 
 
 #----
