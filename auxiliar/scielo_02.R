@@ -57,5 +57,4 @@ scielo$issn2 <- sub("-", "", scielo$issn2)
 
 # Salvando o resultado em um arquivo TSV #----
 
-write.table(scielo, "auxiliar/scielo_issn.tsv",
-            sep = "\t", quote = F, row.names = F)
+write.table(scielo, "auxiliar/scielo_issn.tsv", sep = "\t", quote = F, row.names = F)

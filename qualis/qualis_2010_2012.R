@@ -10,7 +10,7 @@ q10 <- read.delim("qualis/classificacoes_publicadas_todas_as_areas_avaliacao.xls
 
 q10$Área.de.Avaliação <- str_title_case(q10$Área.de.Avaliação)
 q10$Título <- str_title_case(q10$Título)
-names(q10) <- c("isxn", "titulo10", "area", "q10")
+names(q10) <- c("isxn", "NomeComite", "area", "q10")  # Alterado de "titulo10" para "NomeComite" (teste)
 
 #----
 
@@ -27,7 +27,7 @@ issn <- issn[issn$issn1 != issn$issn2, ]
 
 q10$isxn <- sub("-", "", q10$isxn)
 q10$q10 <- sub(" *$", "", q10$q10)
-q10$titulo10 <- sub(" *$", "", q10$titulo10)
+q10$NomeComite <- sub(" *$", "", q10$NomeComite)  # Alterado de "titulo10" para "NomeComite"
 q10 <- split(q10, q10$area)
 
 # Modificar nomes para coincidirem com os do quadriênio seguinte
@@ -45,8 +45,8 @@ names(q10) <- sub("Letras / Linguística", "Linguística e Literatura", names(q1
 # Função "limpar_area" #----
 
 limpar_area <- function(x){
-    x$area <- NULL
-    x
+  x$area <- NULL
+  x
 }
 
 q10 <- lapply(q10, limpar_area)
@@ -56,27 +56,27 @@ q10 <- lapply(q10, limpar_area)
 # Adicionar ISSNs alternativos #----
 
 adicionar_issn <- function(x){
-    tem1 <- issn$issn1 %in% x$isxn
-    tem2 <- issn$issn2 %in% x$isxn
-    adicionar1 <- issn[tem2 & !tem1, ]
-    names(adicionar1) <- c("a", "b")
-    adicionar2 <- issn[tem1 & !tem2, c(2, 1)]
-    names(adicionar2) <- c("a", "b")
-    adicionar <- rbind(adicionar1, adicionar2)
-
-    novodf <- character()
-    for(i in 1:nrow(adicionar)){
-        idx <- grep(adicionar$b[i], x$isxn)[1]
-        novodf <- rbind(novodf, c(adicionar$a[i],
-                                  x$titulo10[idx],
-                                  x$q10[idx]))
-    }
-
-    colnames(novodf) <- c("isxn", "titulo10", "q10")
-
-    x <- rbind(x, novodf)
-    x <- x[!duplicated(x$isxn), ]
-    x
+  tem1 <- issn$issn1 %in% x$isxn
+  tem2 <- issn$issn2 %in% x$isxn
+  adicionar1 <- issn[tem2 & !tem1, ]
+  names(adicionar1) <- c("a", "b")
+  adicionar2 <- issn[tem1 & !tem2, c(2, 1)]
+  names(adicionar2) <- c("a", "b")
+  adicionar <- rbind(adicionar1, adicionar2)
+  
+  novodf <- character()
+  for(i in 1:nrow(adicionar)){
+    idx <- grep(adicionar$b[i], x$isxn)[1]
+    novodf <- rbind(novodf, c(adicionar$a[i],
+                              x$NomeComite[idx],  # Alterado de "titulo10" para "NomeComite"
+                              x$q10[idx]))
+  }
+  
+  colnames(novodf) <- c("isxn", "NomeComite", "q10")  # Alterado de "titulo10" para "NomeComite"
+  
+  x <- rbind(x, novodf)
+  x <- x[!duplicated(x$isxn), ]
+  x
 }
 
 q10 <- lapply(q10, adicionar_issn)
@@ -86,9 +86,9 @@ q10 <- lapply(q10, adicionar_issn)
 # Verificando duplicatas #----
 
 if(sum(duplicated(q10$isxn))){
-    dup <- q10[duplicated(q10$isxn, fromLast = TRUE) | duplicated(q10$isxn), ]
-    cat("ISSN duplicado no Qualis:\n", file = stderr())
-    dup[order(dup$isxn), ]
+  dup <- q10[duplicated(q10$isxn, fromLast = TRUE) | duplicated(q10$isxn), ]
+  cat("ISSN duplicado no Qualis:\n", file = stderr())
+  dup[order(dup$isxn), ]
 }
 
 #----

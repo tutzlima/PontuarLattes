@@ -41,7 +41,7 @@ options(OutDec = ",")
 @
 
 <<defineMainFont, echo=FALSE, results="asis">>=
-MainFont <- "Times New Roman"
+MainFont <- "Arial"
 @
 
 \usepackage{fontspec}

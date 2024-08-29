@@ -1,3 +1,5 @@
+
+---
 # PontuarLattes
 
 O processamento do arquivo `QualisLattes.Rnw` gera um PDF com tabelas com
@@ -32,7 +34,7 @@ O código deste repositório foi testado somente no Linux.
 
 3. Certifique-se de criar um `Rproj` na pasta principal `PontuarLattes` para evitar problemas de caminhos
 
-3. no Rstudio, instale os pacotes `XML`, `openxlsx`, `cld2` e `ineq` e `tidyverse`, por exemplo:
+3. no Rstudio, instale os pacotes `XML`, `openxlsx`, `cld2`, `ineq` e `tidyverse`, por exemplo:
 
  ```r
 install.packages(c("XML", "openxlsx", "cld2", "ineq", "tidyverse"))
@@ -42,8 +44,10 @@ install.packages(c("XML", "openxlsx", "cld2", "ineq", "tidyverse"))
 
 >Você pode escolher entre:
 >- Instalar o [Miktex](https://miktex.org/howto/download-miktex)
->- Instalar o pacote `knitr` no `R`:
->`install.packages("knitr")` e `library(knitr)`
+>
+>- Instalar o pacote `knitr` no `R`: 
+>
+>   `install.packages("knitr")` e `library(knitr)`
 
 3. Na pasta `auxiliar`:
 
@@ -60,7 +64,9 @@ install.packages(c("XML", "openxlsx", "cld2", "ineq", "tidyverse"))
 >- execute os seguintes scripts nessa sequência: 
 >
 >   - `scielo_01.sh`
+>   
 >   - `scielo_02.R`
+>   
 >   - `SJR_SNIP.R`.
 
 10. Na pasta `qualis`:
@@ -68,7 +74,9 @@ install.packages(c("XML", "openxlsx", "cld2", "ineq", "tidyverse"))
 >- execute os seguintes scripts nessa sequência: 
 >
 >   - `qualis_2010_2012.R`
+>   
 >   - `qualis_2013_2016.R`
+>   
 >   - `qualis_2017_2020.R`
 
 10. Na pasta `auxiliar/bqp`:
@@ -102,3 +110,6 @@ install.packages(c("XML", "openxlsx", "cld2", "ineq", "tidyverse"))
 
 Em caso de dúvida, peça ajuda a alguém que saiba programar em R. Se você tem familiaridade com R e encontrou algum erro nestas instruções, por favor, me avise.
 
+definir mainfont antes
+
+alterei o "titulo10" para "NomeComite" para ver se agr vai esse inferno
