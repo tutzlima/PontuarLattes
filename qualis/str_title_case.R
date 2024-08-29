@@ -1,4 +1,3 @@
-
 # Com base no pacote "lettercase"
 str_title_case <- function(x){
     x <- sub("^\\s+", "", x, perl = TRUE)

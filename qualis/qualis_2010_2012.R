@@ -1,20 +1,29 @@
+# Lendo o script "str_title_case" #----
+
 source("qualis/str_title_case.R")
 
-# Ler arquivo baixado da Plataforma Sucupira:
+#----
 
-q10 <- read.delim("qualis/classificacoes_publicadas_todas_as_areas_avaliacao.xls",
-                  fileEncoding = "Latin1", stringsAsFactors = FALSE)
+# Ler arquivo baixado da Plataforma Sucupira #----
+
+q10 <- read.delim("qualis/classificacoes_publicadas_todas_as_areas_avaliacao.xls", fileEncoding = "Latin1", stringsAsFactors = FALSE)
 
 q10$Área.de.Avaliação <- str_title_case(q10$Área.de.Avaliação)
 q10$Título <- str_title_case(q10$Título)
 names(q10) <- c("isxn", "titulo10", "area", "q10")
+
+#----
+
+# Lendo a base "SJR_SNIP.RData" #----
 
 load("auxiliar/SJR_SNIP.RData")
 issn <- issn[issn$issn1 != "", ]
 issn <- issn[issn$issn2 != "", ]
 issn <- issn[issn$issn1 != issn$issn2, ]
 
-# Correções
+#----
+
+# Correções de "q10" #----
 
 q10$isxn <- sub("-", "", q10$isxn)
 q10$q10 <- sub(" *$", "", q10$q10)
@@ -31,6 +40,10 @@ names(q10) <- sub("Filosofia/teologia:subcomissão Filosofia", "Filosofia", name
 names(q10) <- sub("Filosofia/teologia:subcomissão Teologia", "Ciências da Religião e Teologia", names(q10))
 names(q10) <- sub("Letras / Linguística", "Linguística e Literatura", names(q10))
 
+#----
+
+# Função "limpar_area" #----
+
 limpar_area <- function(x){
     x$area <- NULL
     x
@@ -38,7 +51,9 @@ limpar_area <- function(x){
 
 q10 <- lapply(q10, limpar_area)
 
-# Adicionar ISSNs alternativos
+#----
+
+# Adicionar ISSNs alternativos #----
 
 adicionar_issn <- function(x){
     tem1 <- issn$issn1 %in% x$isxn
@@ -66,10 +81,18 @@ adicionar_issn <- function(x){
 
 q10 <- lapply(q10, adicionar_issn)
 
+#----
+
+# Verificando duplicatas #----
+
 if(sum(duplicated(q10$isxn))){
     dup <- q10[duplicated(q10$isxn, fromLast = TRUE) | duplicated(q10$isxn), ]
     cat("ISSN duplicado no Qualis:\n", file = stderr())
     dup[order(dup$isxn), ]
 }
+
+#----
+
+# Salvando o resultado #----
 
 save(q10, file = "qualis/qualis_2010_2012.RData")

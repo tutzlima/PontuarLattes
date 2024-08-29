@@ -1,4 +1,17 @@
-# Comentários Alisson # ----
+# Bibliotecas #----
+
+if (!requireNamespace("pacman", quietly = TRUE)) {
+  install.packages("pacman")
+}
+
+# Estou aproveitando para chamar todas os pacotes que serão usados no processo pelo usuário na primeira vez
+
+pacman::p_load(XML, openxlsx, read.xl, cld2, ineq, tidyverse)
+
+
+#----
+
+# Comentários Alisson #----
 
 # Script que capta os issns das revistas e devolve um tibble
 
@@ -7,39 +20,15 @@
 
 #----
 
-# aqui <- getwd()
-# setwd("/tmp/scielo")
+# Pegando arquivos #----
 
 diretorio <- "/tmp/scielo"
 
-# arquivos <- dir()
-
 arquivos <- list.files(diretorio, full.names = T)
 
-# ISSN <- function(revista) {
-#  l <- readLines(paste0("/tmp/scielo/", revista))
-#  l <- readLines(revista)
-#  l <- l[grep("ISSN", l)]
-#  l <- gsub("\t", "", l)
-#  l <- gsub("ISSN </FONT>", "\t", l)
-#  l <- strsplit(l, "\t")[[1]]
-#  l <- l[grep("^[0-9]", l)]
-#  l <- sub("<.*", "", l)
-#  if (length(l) == 0) {
-#    stop("= 0:", revista)
-#  }
-#  if (length(l) > 2) {
-#    stop("> 2:", revista)
-#  }
-#  if (length(l) == 1) {
-#    l <- c(l, NA)
-#  }
-#  c(revista, l)
-# }
-
+# Função para extrair ISSN
 
 extrai_issn <- function(revista) {
-  # revista <- arquivos[1]
   issn <- tryCatch({
     revista |>
       rvest::read_html() |>
@@ -59,13 +48,14 @@ extrai_issn <- function(revista) {
 
 scielo <- do.call(rbind, lapply(arquivos, extrai_issn))
 
-# removendo hífens dos ISSNs
+# Removendo hífens dos ISSNs
 
 scielo$issn1 <- sub("-", "", scielo$issn1)
 scielo$issn2 <- sub("-", "", scielo$issn2)
 
-# Salvando o resultado em um arquivo TSV
+#----
+
+# Salvando o resultado em um arquivo TSV #----
 
 write.table(scielo, "auxiliar/scielo_issn.tsv",
-            sep = "\t", quote = FALSE, row.names = FALSE
-)
+            sep = "\t", quote = F, row.names = F)

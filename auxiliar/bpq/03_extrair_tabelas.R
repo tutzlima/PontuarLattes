@@ -1,7 +1,8 @@
-library(XML)
+# Lendo os dados
 
 pq <- data.frame()
 fls <- dir(pattern = "*.html")
+
 for(f in fls){
     print(f)
   

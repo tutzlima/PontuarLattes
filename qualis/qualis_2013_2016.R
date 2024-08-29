@@ -1,26 +1,39 @@
+# Lendo o script "str_title_case" #----
+
 source("qualis/str_title_case.R")
 
-# Ler arquivo baixado da Plataforma Sucupira:
+#----
 
-q13 <- read.delim("qualis/classificacoes_publicadas_todas_as_areas_avaliacao1522078273541.xls",
-                  fileEncoding = "Latin1", stringsAsFactors = FALSE)
+# Ler arquivo baixado da Plataforma Sucupira #----
+
+q13 <- read.delim("qualis/classificacoes_publicadas_todas_as_areas_avaliacao1522078273541.xls",fileEncoding = "Latin1", stringsAsFactors = FALSE)
 
 q13$Área.de.Avaliação <- str_title_case(q13$Área.de.Avaliação)
 q13$Título <- str_title_case(q13$Título)
 names(q13) <- c("isxn", "titulo13", "area", "q13")
+
+#----
+
+# Lendo a base "SJR_SNIP.RData" #----
 
 load("auxiliar/SJR_SNIP.RData")
 issn <- issn[issn$issn1 != "", ]
 issn <- issn[issn$issn2 != "", ]
 issn <- issn[issn$issn1 != issn$issn2, ]
 
-# Correções
+#----
+
+# Correções de "q13" #----
 
 q13$isxn <- sub("-", "", q13$isxn)
 q13$q13 <- sub(" *$", "", q13$q13)
 q13$titulo13 <- sub(" *$", "", q13$titulo13)
-
 q13 <- split(q13, q13$area)
+
+#----
+
+# Função "limpar_area" #----
+
 limpar_area <- function(x){
     x$area <- NULL
     x
@@ -28,7 +41,9 @@ limpar_area <- function(x){
 
 q13 <- lapply(q13, limpar_area)
 
-# Adicionar ISSNs alternativos
+#----
+
+# Adicionar ISSNs alternativos #----
 
 adicionar_issn <- function(x){
     tem1 <- issn$issn1 %in% x$isxn
@@ -56,10 +71,18 @@ adicionar_issn <- function(x){
 
 q13 <- lapply(q13, adicionar_issn)
 
+#----
+
+# Verificando duplicatas #----
+
 if(sum(duplicated(q13$isxn))){
     dup <- q13[duplicated(q13$isxn, fromLast = TRUE) | duplicated(q13$isxn), ]
     cat("ISSN duplicado no Qualis:\n", file = stderr())
     dup[order(dup$isxn), ]
 }
+
+#----
+
+# Salvando o resultado #----
 
 save(q13, file = "qualis/qualis_2013_2016.RData")

@@ -1,10 +1,6 @@
 # Siglas das universidades #----
 
-# Data que será utilizada para filtrar
-
 ano <- 2019
-
-# "~/Documentos/Programação/R/PontuarLattes/auxiliar" |> setwd()
 
 siglas <- read.delim("auxiliar/siglas_univ.txt", comment.char = "#", stringsAsFactors = FALSE)
 
@@ -13,9 +9,8 @@ siglas <- read.delim("auxiliar/siglas_univ.txt", comment.char = "#", stringsAsFa
 # Gerar tabela de equivalência entre ISSN impresso e online de três fontes: SJR, SNIP e site do Scielo #----
 
 # Lista de ISSNs impresso e eletrônico do Scielo
-# issn <- read.delim("scielo_issn.tsv", stringsAsFactors = FALSE)
 
-issn <- read.delim("auxiliar/scielo_issn.tsv", stringsAsFactors = FALSE)
+issn <- read.delim("auxiliar/scielo_issn.tsv", stringsAsFactors = F)
 
 issn <- issn[!is.na(issn$issn2), c("issn1", "issn2")]
 
@@ -29,11 +24,14 @@ issn <- issn[!is.na(issn$issn2), c("issn1", "issn2")]
 
 # sjr <- read.delim2("/tmp/scimagojrTAB", sep = "\t", fill = FALSE, stringsAsFactors = FALSE)
 
-sjr_file <- list.files(path = "auxiliar", pattern = "scimagojr 2019.csv", full.names = TRUE) |>
-  head(1) |> # conferir se scimago é o esperado
+sjr_file <- list.files(path = "auxiliar", pattern = "scimagojr 2019.csv", full.names = TRUE)  %>%
+  head(1) %>% # conferir se scimago é o esperado
   read.csv2()
 
 sjr <- sjr_file[!is.na(sjr_file$SJR), ] # (Arthur) essa linha estava com o nome do arquivo errado
+
+# transformando os nomes das colunas
+
 names(sjr) <- sub("Issn", "isxn", names(sjr))
 names(sjr) <- sub("Title", "title.sjr", names(sjr))
 names(sjr) <- sub("Categories", "cat.sjr", names(sjr))
@@ -84,15 +82,13 @@ for (i in 1:nrow(issn)) {
   }
 }
 
-sjr <- rbind(sjr, ss2) # (Arthur) aguarde um pouco!
-
-#Sys.sleep(10)
+sjr <- rbind(sjr, ss2) # aguarde um pouco!
 
 SJR_SNIP_version <- c("SJR" = "2019", "SNIP" = "Abril de 2020")
 
-# SJR_SNIP_version <- c("SJR" = ano, "SNIP" = "Março de 2024")
+#----
 
-# Dados do SNIP
+# Dados do SNIP #----
 
 # Obter SNIP de http://www.journalindicators.com/methodology#sthash.FN5cRgxb.dpuf%20
 
@@ -105,29 +101,32 @@ if (!file.exists("CWTS Journal Indicators April 2020.xlsx")) {
 
 # Verifique a integridade do arquivo antes de seguir, pois o antigo link estava errado!
 
-# library("openxlsx")
-# cwts <- "CWTS Journal Indicators April 2020.xlsx"
-# "CWTS Journal Indicators April 2024.xlsx"
+# Pegando o arquivo
 
 cwts <- list.files(path = "auxiliar", pattern = "CWTS", full.names = T)
 
 # Conferir qual dos elementos do vetor irá utilizar!
 
-cwts <- cwts[2]
-# cwts
+cwts <- cwts[2] # execute o "cwts" para verificar
+
+# lendo e renomeando as colunas
+
 snip.cat <- openxlsx::read.xlsx(cwts, 2)
 names(snip.cat) <- c("id", "Categoria")
+
 snip.cat$Peso <- 1.0
 
 snip1 <- openxlsx::read.xlsx(cwts, 1)
 snip1 <- snip1[
-  # snip1$Year == 2019,
   snip1$Year == ano,
   c(
     "Source.title", "Source.type", "Print.ISSN",
     "Electronic.ISSN", "ASJC.field.IDs", "Year", "SNIP"
   )
 ]
+
+# corrigindo a escrita
+
 snip1$Print.ISSN <- sub("-", "", snip1$Print.ISSN)
 snip1$Electronic.ISSN <- sub("-", "", snip1$Electronic.ISSN)
 snip1$Electronic.ISSN <- sub("-", "", snip1$Electronic.ISSN)
@@ -172,24 +171,35 @@ for (i in 1:nrow(issn)) {
   }
 }
 
-# Juntar SJR e SNIP no mesmo data.frame
+#----
 
-sjrsnip <- merge(sjr, snip, all = TRUE) # (Arthur) espere um pouco nesse momento
+# Juntar SJR e SNIP no mesmo data.frame #----
+
+sjrsnip <- merge(sjr, snip, all = TRUE) # espere um pouco nesse momento
 
 sjrsnip <- sjrsnip[!is.na(sjrsnip$isxn) & nchar(sjrsnip$isxn) > 1, ]
+
+# transformando o data.frame
 
 sjr.cat <- gsub(" \\(Q[0-4]\\)", "", sjrsnip$cat.sjr)
 sjr.cat <- lapply(sjr.cat, function(x) strsplit(x, ";")[[1]])
 sjr.cat <- do.call("c", sjr.cat)
 sjr.cat <- sub("^ ", "", sjr.cat)
+
 sjr.cat <- table(sjr.cat)
 sjr.cat <- data.frame(
   "Categoria" = names(sjr.cat),
   "Peso" = rep(1.0, length(sjr.cat))
 )
 
+# verificando duplicatas
+
 if (sum(duplicated(sjrsnip$isxn))) {
   cat("ISSN duplicado no SJR/SNIP\n", file = stderr())
 }
 
-save(sjrsnip, sjr.cat, snip.cat, SJR_SNIP_version, issn, siglas, file = "base_SJR_SNIP.RData") # VERIFICA SE É ESSE MESMO
+#----
+
+# Salvando o resultado #----
+
+save(sjrsnip, sjr.cat, snip.cat, SJR_SNIP_version, issn, siglas, file = "auxiliar/SJR_SNIP.RData")
