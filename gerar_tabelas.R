@@ -420,8 +420,8 @@ i <- p$ano >= QualQualis["Q10", "ini"] & p$ano <= QualQualis["Q10", "fim"]
 p$qualis[i] <- p$q10[i]
 i <- p$ano >= QualQualis["Q13", "ini"] & p$ano <= QualQualis["Q13", "fim"]
 p$qualis[i] <- p$q13[i]
-i <- p$ano >= QualQualis["Q17", "ini"] & p$ano <= QualQualis["Q17", "fim"]
-p$qualis[i] <- p$q17[i]
+#i <- p$ano >= QualQualis["Q17", "ini"] & p$ano <= QualQualis["Q17", "fim"]
+#p$qualis[i] <- p$q17[i]
 i <- p$tipo != "Artigo"
 p$qualis[i] <- p$tipo[i]
 
@@ -517,8 +517,8 @@ i <- p$ano >= QualQualis["Q10", "ini"] & p$ano <= QualQualis["Q10", "fim"]
 p10 <- p[i, ]
 i <- p$ano >= QualQualis["Q13", "ini"] & p$ano <= QualQualis["Q13", "fim"]
 p13 <- p[i, ]
-i <- p$ano >= QualQualis["Q17", "ini"] & p$ano <= QualQualis["Q17", "fim"]
-p17 <- p[i, ]
+#i <- p$ano >= QualQualis["Q17", "ini"] & p$ano <= QualQualis["Q17", "fim"]
+#p17 <- p[i, ]
 
 if (nrow(p10))
     p10 <- merge(p10, PontosQualis10)
@@ -1272,7 +1272,7 @@ if (nrow(ttldif) > 0) {
     ttldif$titulo[idx] <- ttldif$titulo10[idx]
     idx <- ttldif$ano >= QualQualis["Q13", "ini"] & ttldif$ano <= QualQualis["Q13", "fim"]
     ttldif$titulo[idx] <- ttldif$titulo13[idx]
-    idx <- ttldif$ano >= QualQualis["Q17", "ini"] & ttldif$ano <= QualQualis["Q17", "fim"]
+    #idx <- ttldif$ano >= QualQualis["Q17", "ini"] & ttldif$ano <= QualQualis["Q17", "fim"]
     ttldif$titulo[idx] <- ttldif$titulo17[idx]
     ttldif$ano <- ttldif$titulo10 <- ttldif$titulo13 <- ttldif$titulo17 <- NULL
     ttldif <- ttldif[!is.na(ttldif$titulo), ]
