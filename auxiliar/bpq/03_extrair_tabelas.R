@@ -1,19 +1,16 @@
-# Lendo os dados #---- VERIFICAR ERRO AQUI
+# Lendo os dados #---- 
 
+pq <- data.frame()
+fls <- dir(pattern = "*.html")
 for(f in fls){
   print(f)
-  
+  # Observação: tive que converter os arquivos para TTF-8 para evitar erros
+  # de leitura.
   tbs <- readHTMLTable(f)
-  
-  if (is.null(tbs) || length(tbs) == 0) {
-    next  # Pule arquivos que não têm tabelas
-  }
-  
   tbs <- tbs[sapply(tbs, is.data.frame)]
   tbs <- tbs[sapply(tbs, ncol) == 6]
-  
-  if (length(tbs) > 0) {
-    tab <- do.call("rbind", tbs)
+  tab <- do.call("rbind", tbs)
+  if(length(tbs)){
     colnames(tab) <- c("nome", "nivel", "inicio", "termino", "instituicao", "situacao")
     tab <- tab[!is.na(tab$situacao), ]
     rownames(tab) <- NULL

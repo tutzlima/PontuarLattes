@@ -6,7 +6,7 @@ TituloDoc <- "Produção dos Professores do PPG em XXXX da Universidade YYYY"
 
 NomeComite <- "Ciência Política e Relações Internacionais"
 
-Autor <- "Seu Nome"
+Autor <- "Arthur"
 
 #----
 
@@ -60,5 +60,5 @@ PesoLivros <- 0.35
 
 # Especificar período do relatório #----
 
-Inicio <- 2017
+Inicio <- 2010
 Fim <- 2020

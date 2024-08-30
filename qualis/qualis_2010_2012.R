@@ -10,7 +10,7 @@ q10 <- read.delim("qualis/classificacoes_publicadas_todas_as_areas_avaliacao.xls
 
 q10$Área.de.Avaliação <- str_title_case(q10$Área.de.Avaliação)
 q10$Título <- str_title_case(q10$Título)
-names(q10) <- c("isxn", "NomeComite", "area", "q10")  # Alterado de "titulo10" para "NomeComite" (teste)
+names(q10) <- c("isxn", "titulo10", "area", "q10")
 
 #----
 
@@ -27,7 +27,7 @@ issn <- issn[issn$issn1 != issn$issn2, ]
 
 q10$isxn <- sub("-", "", q10$isxn)
 q10$q10 <- sub(" *$", "", q10$q10)
-q10$NomeComite <- sub(" *$", "", q10$NomeComite)  # Alterado de "titulo10" para "NomeComite"
+q10$titulo10 <- sub(" *$", "", q10$titulo10)  # Alterado de "NomeComite" para "titulo10"
 q10 <- split(q10, q10$area)
 
 # Modificar nomes para coincidirem com os do quadriênio seguinte
@@ -68,11 +68,11 @@ adicionar_issn <- function(x){
   for(i in 1:nrow(adicionar)){
     idx <- grep(adicionar$b[i], x$isxn)[1]
     novodf <- rbind(novodf, c(adicionar$a[i],
-                              x$NomeComite[idx],  # Alterado de "titulo10" para "NomeComite"
+                              x$titulo10[idx],  # Alterado de "NomeComite" para "titulo10"
                               x$q10[idx]))
   }
   
-  colnames(novodf) <- c("isxn", "NomeComite", "q10")  # Alterado de "titulo10" para "NomeComite"
+  colnames(novodf) <- c("isxn", "titulo10", "q10")  # Alterado de "NomeComite" para "titulo10"
   
   x <- rbind(x, novodf)
   x <- x[!duplicated(x$isxn), ]

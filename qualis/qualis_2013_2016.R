@@ -10,7 +10,7 @@ q13 <- read.delim("qualis/classificacoes_publicadas_todas_as_areas_avaliacao1522
 
 q13$Área.de.Avaliação <- str_title_case(q13$Área.de.Avaliação)
 q13$Título <- str_title_case(q13$Título)
-names(q13) <- c("isxn", "NomeComite", "area", "q13")  # Alterado de "titulo13" para "NomeComite"
+names(q13) <- c("isxn", "titulo13", "area", "q13")  # Alterado de "NomeComite" para "titulo13"
 
 #----
 
@@ -27,7 +27,7 @@ issn <- issn[issn$issn1 != issn$issn2, ]
 
 q13$isxn <- sub("-", "", q13$isxn)
 q13$q13 <- sub(" *$", "", q13$q13)
-q13$NomeComite <- sub(" *$", "", q13$NomeComite)  # Alterado de "titulo13" para "NomeComite"
+q13$titulo13 <- sub(" *$", "", q13$titulo13)  # Alterado de "NomeComite" para "titulo13"
 q13 <- split(q13, q13$area)
 
 #----
@@ -58,11 +58,11 @@ adicionar_issn <- function(x){
   for(i in 1:nrow(adicionar)){
     idx <- grep(adicionar$b[i], x$isxn)[1]
     novodf <- rbind(novodf, c(adicionar$a[i],
-                              x$NomeComite[idx],  # Alterado de "titulo13" para "NomeComite"
+                              x$titulo13[idx],  # Alterado de "NomeComite" para "titulo13"
                               x$q13[idx]))
   }
   
-  colnames(novodf) <- c("isxn", "NomeComite", "q13")  # Alterado de "titulo13" para "NomeComite"
+  colnames(novodf) <- c("isxn", "titulo13", "q13")  # Alterado de "NomeComite" para "titulo13"
   
   x <- rbind(x, novodf)
   x <- x[!duplicated(x$isxn), ]
@@ -86,3 +86,4 @@ if(sum(duplicated(q13$isxn))){
 # Salvando o resultado #----
 
 save(q13, file = "qualis/qualis_2013_2016.RData")
+

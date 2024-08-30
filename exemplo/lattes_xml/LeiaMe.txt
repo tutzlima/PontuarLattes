@@ -1,1 +1,0 @@
-Neste diretório deverão ser salvos os currículos Lattes em formato XML compactados como .zip.

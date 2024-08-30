@@ -6,28 +6,10 @@ load("auxiliar/SJR_SNIP.RData")
 
 #----
 
-# Verificar se o NomeComite está presente nas listas q10, q13 e q17
 
-# Valores a serem substituídos pelos dados de info.R
+# Valores a serem substituídos pelos dados de info.R #----
 
-#----
-#NomeProg <- "Ciência Política e Relações Internacionais"
-#TituloDoc <- "Produção dos Professores do PPG em XXXX da #Universidade YYYY"
-#NomeComite <- "Ciência Política e Relações Internacionais"
-#Autor <- "Seu Nome"
-#PontosQualis10 <- data.frame(qualis = c("A1", "A2", "B1", "B2", "B3", "B4", "B5", "C", "SQ", "OD", "Lvr", "Org", "Cap"), pontos = c(100,   90,   70,    0,    0,    0,    0,   0,    0,    0,    70,    70,    15))
-#PontosQualis13 <- data.frame(qualis = c("A1", "A2", "B1", "B2", "B3", "B4", "B5", "C", "SQ", "OD", "Lvr", "Org", "Cap"), pontos = c(100,   90,   70,    0,    0,    0,    0,   0,    0,    0,    70,    70,    15))
-#PontosQualis17 <- data.frame(qualis = c("A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4", "C", "SQ", "OD", "Lvr", "Org", "Cap"), pontos = c(100,   90,   70,   60,    0,    0,    0,    0,    0,   0,    0,    70,    70,    15))
-#QualQualis <- rbind("Q10" = c("ini" = 1900, "fim" = 2012), "Q13" = c(2013, 2016), "Q17" = c(2017, 2099))
-#QualisPorTitulo <- FALSE
-#OrdenarOrientacaoPorNome <- FALSE
-#PesoArtigos <- 0.65
-#PesoLivros <- 0.35
-#Inicio <- 2017
-#Fim <- 2020
-#----
-
-# A leitura do info.R fica aqui para possibilitar a alteração dos pesos das diferentes categorias do SJR e SNIP # ----
+# A leitura do info.R fica aqui para possibilitar a alteração dos pesos das diferentes categorias do SJR e SNIP 
 
 if (file.exists("info.R")){
     source("info.R")
@@ -49,7 +31,7 @@ if (NomeComite %in% names(q13)) {
 if (NomeComite %in% names(q13)) {
   q10 <- q10[[NomeComite]]
   q13 <- q13[[NomeComite]]
-  q17 <- q17[[NomeComite]]
+  #q17 <- q17[[NomeComite]]
 } else {
   writeLines(names(q13), "nomes_validos.txt")
   cat(paste0("Variável 'NomeComite' inválida: '", NomeComite,
@@ -58,6 +40,8 @@ if (NomeComite %in% names(q13)) {
     quit(save = "no", status = 1)
   }
 }
+
+# Verificar se o NomeComite está presente nas listas q10, q13 e q17
 
 #----
 
@@ -370,11 +354,13 @@ obter.producao <- function(arquivo) {
 }
 
 lsxml <- c(dir("curriculos", pattern = "*.zip"), dir("curriculos", pattern = "*.xml"))
+
 if (length(lsxml) == 0) {
     cat("Nenhum currículo encontrado na pasta 'curriculos'\n", file = stderr())
     if (!interactive())
         quit(save = "no", status = 1)
 }
+
 xx <- lapply(lsxml, obter.producao)
 xx <- do.call("rbind", xx)
 p <- as.data.frame(xx, stringsAsFactors = FALSE)
@@ -579,10 +565,12 @@ if (nrow(p10)) {
     colnames(PontosQualis10) <- c("Código", "2010--2012")
     pontos <- merge(pontos, PontosQualis10, all.x = TRUE)
 }
+
 if (nrow(p13)) {
     colnames(PontosQualis13) <- c("Código", "2013--16")
     pontos <- merge(pontos, PontosQualis13, all.x = TRUE)
 }
+
 if (nrow(p17)) {
     colnames(PontosQualis17) <- c("Código", "2017--20")
     pontos <- merge(pontos, PontosQualis17, all.x = TRUE)
@@ -743,12 +731,14 @@ nSnip$Sim[is.na(nSnip$Sim)] <- 0
 
 p4 <- p[p$tipo == "Artigo", c("prof", "ano", "pontos")]
 p4s <- split(p4, p4$prof)
+
 QuatroMaiores <- function(x) {
     x <- x[order(x$pontos, decreasing = TRUE), ]
     if (nrow(x) > 4)
         x <- x[1:4, ]
     x
 }
+
 p4s <- lapply(p4s, QuatroMaiores)
 p4 <- do.call("rbind", p4s)
 tab <- tapply(p4$pontos, p4$prof, sum)
@@ -768,6 +758,7 @@ pontuacaoArt4 <- data.frame(Professor = names(tab), Pontos = unname(tab))
 # Lista de Pós-doutorados realizados #----
 
 posdoc <- do.call("rbind", posdoc)
+
 if (is.null(posdoc)) {
     posdoc <- matrix(NA, ncol = 4)
 } else {
@@ -775,6 +766,7 @@ if (is.null(posdoc)) {
     if (nrow(posdoc) > 1)
         posdoc <- posdoc[order(posdoc[, 4]), ]
 }
+
 colnames(posdoc) <- c("Professor", "Instituição", "Início", "Fim")
 posdoc <- as.data.frame(posdoc, stringsAsFactors = FALSE)
 posdoc$Início <- as.numeric(posdoc$Início)
@@ -1222,10 +1214,16 @@ checkISBN <- function(x) {
     }
 }
 
+#----
+
+# "NAs introduzidos por coerção" #----
+
 idx <- sapply(b$isxn, checkISBN)
 if (sum(idx) > 0) {
     b$erro[idx] <- "ninval"
 }
+
+#----
 
 b$producao <- sub("^(................................).*", "\\1", b$producao)
 b$livro.ou.periodico <- sub("^(....................................).*", "\\1", b$livro.ou.periodico)
@@ -1262,11 +1260,11 @@ rm(b)
 ttldif <- p[p$tipo == "Artigo", ]
 ttldif$titulo10 <- sapply(ttldif$titulo10, html2tex)
 ttldif$titulo13 <- sapply(ttldif$titulo13, html2tex)
-ttldif$titulo17 <- sapply(ttldif$titulo17, html2tex)
-ttldif <- ttldif[!((!is.na(ttldif$titulo10) & tolower(ttldif$titulo10) == tolower(ttldif$livro.ou.periodico)) |
-                   (!is.na(ttldif$titulo13) & tolower(ttldif$titulo13) == tolower(ttldif$livro.ou.periodico)) |
-                   (!is.na(ttldif$titulo17) & tolower(ttldif$titulo17) == tolower(ttldif$livro.ou.periodico))),
-                 c("ano", "titulo10", "titulo13", "titulo17", "livro.ou.periodico")]
+
+#ttldif$titulo17 <- sapply(ttldif$titulo17, html2tex)
+
+#ttldif <- ttldif[!((!is.na(ttldif$titulo10) & tolower(ttldif$titulo10) == tolower(ttldif$livro.ou.periodico)) |(!is.na(ttldif$titulo13) & tolower(ttldif$titulo13) == tolower(ttldif$livro.ou.periodico)) | (!is.na(ttldif$titulo17) & tolower(ttldif$titulo17) == tolower(ttldif$livro.ou.periodico))), c("ano", "titulo10", "titulo13", "titulo17", "livro.ou.periodico")]
+
 if (nrow(ttldif) > 0) {
     ttldif$ano <- as.numeric(as.character(ttldif$ano))
     ttldif$titulo <- ""
